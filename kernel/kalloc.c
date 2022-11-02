@@ -80,3 +80,16 @@ kalloc(void)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
 }
+
+// Return the amount of free memory in the kernel.
+uint64 sys_freemem(void) {
+  struct run *r;
+
+  acquire(&kmem.lock);
+  uint64 sum = 0;
+  for (r = kmem.freelist; r; r = r->next)
+    sum += PGSIZE;
+  release(&kmem.lock);
+
+  return sum;
+}
