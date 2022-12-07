@@ -399,6 +399,37 @@ void truncate3(char *s) {
   exit(xstatus);
 }
 
+void append(char *s) {
+  char buf[32];
+
+  unlink("appendfile");
+
+  int fd = open("appendfile", O_CREATE | O_WRONLY);
+  write(fd, "abcd", 4);
+  close(fd);
+
+  fd = open("appendfile", O_RDONLY);
+  int n = read(fd, buf, sizeof(buf));
+  if (n != 4) {
+    printf("%s: read %d bytes, wanted 4", s, n);
+    exit(1);
+  }
+
+  fd = open("appendfile", O_WRONLY | O_APPEND);
+  write(fd, "efgh", 4);
+  close(fd);
+
+  fd = open("appendfile", O_RDONLY);
+  n = read(fd, buf, sizeof(buf));
+  if (n != 8) {
+    printf("%s: read %d bytes, wanted 8", s, n);
+    exit(1);
+  }
+
+  unlink("appendfile");
+  close(fd);
+}
+
 // does chdir() call iput(p->cwd) in a transaction?
 void iputtest(char *s) {
   if (mkdir("iputdir") < 0) {
@@ -2432,6 +2463,7 @@ struct test {
     {truncate1, "truncate1"},
     {truncate2, "truncate2"},
     {truncate3, "truncate3"},
+    {append, "append"},
     {openiputtest, "openiput"},
     {exitiputtest, "exitiput"},
     {iputtest, "iput"},
