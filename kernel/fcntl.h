@@ -4,3 +4,5 @@
 #define O_CREATE 0x200
 #define O_TRUNC 0x400
 #define O_APPEND 0x800
+
+enum { SEEK_SET, SEEK_CUR, SEEK_END };

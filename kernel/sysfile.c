@@ -446,3 +446,34 @@ uint64 sys_pipe(void) {
   }
   return 0;
 }
+
+uint64 sys_lseek(void) {
+  int fd, offset, whence;
+  struct file *f;
+  struct proc *p = myproc();
+
+  argint(0, &fd);
+  argint(1, &offset);
+  argint(2, &whence);
+
+  if (fd < 0 || fd >= NOFILE || (f = p->ofile[fd]) == 0) return -1;
+  if (f->type != FD_INODE) return -1;
+
+  int offset_old = f->off;
+  if (whence == SEEK_SET) {
+    f->off = offset;
+  } else if (whence == SEEK_CUR) {
+    f->off += offset;
+  } else if (whence == SEEK_END) {
+    f->off = f->ip->size + offset;
+  } else {
+    return -1;
+  }
+
+  if (f->off < 0 || f->off > MAXFILE * BSIZE) {
+    f->off = offset_old;
+    return -1;
+  }
+
+  return f->off;
+}
