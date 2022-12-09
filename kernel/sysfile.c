@@ -470,6 +470,13 @@ uint64 sys_lseek(void) {
     return -1;
   }
 
+  if (f->off > f->ip->size) {
+    if (filewrite(f, 0, f->off - f->ip->size) < 0) {
+      f->off = offset_old;
+      return -1;
+    }
+  }
+
   if (f->off < 0 || f->off > MAXFILE * BSIZE) {
     f->off = offset_old;
     return -1;
